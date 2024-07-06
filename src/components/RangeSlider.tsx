@@ -1,31 +1,25 @@
 "use client";
 import { clamp } from "@/utils";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, RefObject } from "react";
 
 export type CurrentDragging = "Start" | "End" | "None";
 
 export default function RangeSlider({
-	startPercentage,
-	endPercentage,
+    videoRef,
 	setStartPercentage,
 	setEndPercentage,
 	videoLoaded,
 	videoDuration,
-	seekToPercentage,
 	videoCurrentTime,
 	currentTime,
-	seekToTime,
 }: {
-	startPercentage: number;
-	endPercentage: number;
+    videoRef: RefObject<HTMLVideoElement>;
 	setStartPercentage: (percentage: number) => void;
 	setEndPercentage: (percentage: number) => void;
 	videoLoaded: boolean;
 	videoDuration: number | undefined;
-	seekToPercentage: (percentage: number) => void;
 	videoCurrentTime: number;
 	currentTime: number;
-	seekToTime: (time: number) => void;
 }) {
 	const [currentDragging, setCurrentDragging] =
 		useState<CurrentDragging>("None");
@@ -42,6 +36,18 @@ export default function RangeSlider({
 
 		setCurrentTimePreviewOffset((videoCurrentTime / videoDuration!) * 100);
 	}, [videoCurrentTime]);
+
+    function seekToPercentage(percentage: number) {
+		if (!videoRef.current) return;
+
+		videoRef.current.currentTime = percentage * videoRef.current.duration;
+	}
+
+	function seekToTime(time: number) {
+		if (!videoRef.current) return;
+
+		videoRef.current.currentTime = time;
+	}
 
 	function onStartDotDown() {
 		if (!videoLoaded) return;
@@ -137,7 +143,10 @@ export default function RangeSlider({
 
 			{/* Current Time Display */}
 			<div
-				className={`absolute w-1 h-2 bg-white/80 z-30 }`}
+				className={`
+                    ${videoDuration == undefined && "hidden"}
+                    absolute w-1 h-2 bg-white/80 z-30 rounded-md
+                `}
 				style={{
 					left: `${currentTimePreviewOffset}%`,
 				}}

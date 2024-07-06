@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::{Manager, WindowEvent};
+use window_shadows::set_shadow;
 
 #[tauri::command]
 fn extend_scope(handle: tauri::AppHandle, path: std::path::PathBuf) {
@@ -20,6 +21,8 @@ fn main() {
                 return Ok(());
             };
 
+            set_shadow(&window, true).expect("Unsupported platform!");
+            
             window.on_window_event(|event| match event {
                 WindowEvent::Resized(..) => std::thread::sleep(std::time::Duration::from_millis(5)),
                 _ => {}

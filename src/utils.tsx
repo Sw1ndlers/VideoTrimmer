@@ -11,3 +11,21 @@ export function formatTimestamp(seconds: number) {
 	}
 	return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
 }
+
+export const videoExtensions = [
+    "mp4",
+    "avi",
+    "mov",
+    "wmv",
+    "flv",
+    "mkv",
+    "webm",
+    "mpeg",
+    "mpg",
+    "m4v",
+    "3gp",
+    "3g2",
+    "ogg",
+    "ogv"
+  ];
+  

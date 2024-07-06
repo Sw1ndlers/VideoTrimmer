@@ -52,7 +52,7 @@ export default function Header() {
 			data-tauri-drag-region
 			className="
             rounded-t-md w-screen h-10 border-b 
-            border-neutral-800 
+            border-neutral-800  bg-neutral-950
             flex items-center justify-between px-2
             z-50
             "
