@@ -32,7 +32,7 @@ export default function Header() {
 		setAppWindow(appWindow);
 	}
 
-    useEffect(() => {
+	useEffect(() => {
 		setupAppWindow();
 	}, []);
 

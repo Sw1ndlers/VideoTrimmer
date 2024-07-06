@@ -15,8 +15,13 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" className="w-screen h-screen text-neutral-100 select-none">
-			<body className={`w-full h-full flex flex-col ${inter.className}`}>{children}</body>
+		<html
+			lang="en"
+			className="w-screen h-screen text-neutral-100 select-none"
+		>
+			<body className={`w-full h-full flex flex-col ${inter.className}`}>
+				{children}
+			</body>
 		</html>
 	);
 }

@@ -7,8 +7,8 @@
         "distDir": "../out"
     },
     "package": {
-        "productName": "video-trimmer",
-        "version": "0.1.0"
+        "productName": "Clip Trimmer",
+        "version": "1.0.0"
     },
     "tauri": {
         "allowlist": {
@@ -23,13 +23,13 @@
                 "removeDir": false,
                 "removeFile": false,
                 "renameFile": false,
-                "scope": ["**"],
+                "scope": [""],
                 "writeFile": true
             },
             "protocol": {
                 "all": false,
                 "asset": true,
-                "assetScope": ["**"]
+                "assetScope": [""]
             },
             "window": {
                 "all": false,
@@ -58,7 +58,7 @@
                 "icons/icon.icns",
                 "icons/icon.ico"
             ],
-            "identifier": "com.tauri.dev",
+            "identifier": "com.sw1ndler.trimmer",
             "longDescription": "",
             "macOS": {
                 "entitlements": null,
@@ -87,7 +87,7 @@
                 "fullscreen": false,
                 "height": 600,
                 "resizable": true,
-                "title": "video-trimmer",
+                "title": "Clip Trimmer",
                 "width": 800,
                 "decorations": false,
                 "transparent": true
