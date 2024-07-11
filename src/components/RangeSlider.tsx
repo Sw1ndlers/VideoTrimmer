@@ -1,4 +1,6 @@
 "use client";
+
+import { useAppWindow } from "@/hooks";
 import { clamp } from "@/utils";
 import { useState, useRef, useEffect, RefObject } from "react";
 
@@ -6,6 +8,8 @@ export type CurrentDragging = "Start" | "End" | "None";
 
 export default function RangeSlider({
     videoRef,
+    startPercentage,
+    endPercentage,
 	setStartPercentage,
 	setEndPercentage,
 	videoLoaded,
@@ -14,6 +18,8 @@ export default function RangeSlider({
 	currentTime,
 }: {
     videoRef: RefObject<HTMLVideoElement>;
+    startPercentage: number;
+    endPercentage: number;
 	setStartPercentage: (percentage: number) => void;
 	setEndPercentage: (percentage: number) => void;
 	videoLoaded: boolean;
@@ -30,6 +36,7 @@ export default function RangeSlider({
 	const endDotRef = useRef<HTMLDivElement>(null);
 
 	const [seekPreviewTime, setSeekPreviewTime] = useState<number | null>(null);
+    const appWindow = useAppWindow();
 
 	useEffect(() => {
 		if (currentDragging !== "None") return;
@@ -73,6 +80,26 @@ export default function RangeSlider({
 		setCurrentDragging("None");
 	}
 
+    function setLeftDotPosition(percentage: number) {
+        let startDot = startDotRef.current!;
+        let container = containerRef.current!;
+
+        let containerRect = container.getBoundingClientRect();
+
+        let offset = percentage * containerRect.width;
+        startDot.style.left = `${offset}px`;
+    }
+
+    function setRightDotPosition(percentage: number) {
+        let endDot = endDotRef.current!;
+        let container = containerRef.current!;
+
+        let containerRect = container.getBoundingClientRect();
+
+        let offset = percentage * containerRect.width;
+        endDot.style.right = `${containerRect.width - offset}px`;
+    }
+
 	function onMouseMove(event: MouseEvent) {
 		if (currentDragging === "None") return;
 
@@ -111,16 +138,30 @@ export default function RangeSlider({
 			seekToPercentage(percentage);
 		}
 	}
+    
 
 	useEffect(() => {
+        if (!appWindow) return;
+
+        let unlisten: () => void;
+
+        (async () => {
+            unlisten = await appWindow.listen("tauri://resize", () => {
+                setLeftDotPosition(startPercentage)
+                setRightDotPosition(endPercentage)
+            })
+        })();
+
 		window.addEventListener("mouseup", onMouseUp);
 		window.addEventListener("mousemove", onMouseMove);
 
 		return () => {
+            unlisten()
+
 			window.removeEventListener("mouseup", onMouseUp);
 			window.removeEventListener("mousemove", onMouseMove);
 		};
-	}, [currentDragging]);
+	}, [currentDragging, appWindow]);
 
 	return (
 		// pt-6
@@ -129,7 +170,7 @@ export default function RangeSlider({
 			<div className=" bg-neutral-900 relative flex justify-center items-center">
 				<span
 					className={`${currentDragging == "Start" ? "size-4" : "size-3"} 
-                    rounded-full bg-blue-800 absolute flex justify-center items-center
+                    rounded-full bg-blue-800 absolute flex justify-center items-center z-auto
                 `}
 					style={{
 						left: "0px",
@@ -163,7 +204,7 @@ export default function RangeSlider({
 				<span
 					className={`
                     ${currentDragging == "End" ? "size-4" : "size-3"} 
-                    rounded-full bg-blue-800 absolute flex justify-center items-center
+                    rounded-full bg-blue-800 absolute flex justify-center items-center z-auto
                 `}
 					style={{
 						right: "0px",

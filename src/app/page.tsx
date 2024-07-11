@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import RangeSlider from "@/components/RangeSlider";
 import VideoPlayer from "@/components/VideoPlayer";
 import VideoControls from "@/components/VideoControls";
+import { invoke } from '@tauri-apps/api/tauri'
 
 export default function Home() {
 	const [assetUrl, setAssetUrl] = useState("");
@@ -18,6 +19,8 @@ export default function Home() {
 	const [videoCurrentTime, setVideoCurrentTime] = useState(0);
 
     const [videoPath, setVideoPath] = useState<string | null>(null);
+    const [videoName, setVideoName] = useState<string>("");
+    const [videoExt, setVideoExt] = useState<string>("");
 
 	const videoRef = useRef<HTMLVideoElement>(null);
 	let updateInterval: any = null;
@@ -39,6 +42,51 @@ export default function Home() {
 			clearInterval(updateInterval);
 		}
 	}
+
+    function splitVideoPath(fullPath: string) {
+        const fullVideoName = fullPath.split("\\");
+        const extensionSplit = fullPath.split(".");
+
+        const videoExt = extensionSplit[extensionSplit.length - 1];
+        const videoName = fullVideoName[fullVideoName.length - 1].split("." + videoExt)[0];
+
+        return {
+            videoName,
+            videoExt
+        }
+    }
+
+    function createNewVideoPath(fullPath: string) {
+        const videoFolder = fullPath.split("\\").slice(0, -1).join("\\");
+        const newVideoPath = `${videoFolder}\\${videoName}.${videoExt}`;
+
+        return newVideoPath;
+    }
+
+    async function onFinalizeVideo() {
+        if (!videoPath || !videoRef.current) return;
+
+        const newVideoPath = createNewVideoPath(videoPath);
+        const videoLength = videoRef.current.duration;
+
+        const result = invoke("process_video", {
+            inputPath: videoPath,
+            outputPath: newVideoPath,
+            startTime: Math.max(startPercentage * videoLength, 0),
+            endTime: Math.min(endPercentage * videoLength, videoLength)
+        })
+
+        console.log(result);
+    }
+
+
+    useEffect(() => {
+        if (videoPath) {
+            const { videoName, videoExt } = splitVideoPath(videoPath);
+            setVideoName(videoName);
+            setVideoExt(videoExt);
+        }
+    }, [videoPath]);
 
 	useEffect(() => {
 		if (!videoRef.current) return;
@@ -62,19 +110,22 @@ export default function Home() {
 						<input
 							className="bg-neutral-900 text-sm p-1 rounded-md focus:shadow-lg border border-transparent focus:border focus:border-neutral-300/50"
 							placeholder="Title"
+                            value={videoName}
+                            onChange={(e) => setVideoName(e.target.value)}
+                            
 						/>
 						<p className=" translate-y-1 text-xl">.</p>
 						<input
 							className="bg-neutral-900 text-sm p-1 rounded-md focus:shadow-lg border border-transparent focus:border focus:border-neutral-300/50 w-12"
 							placeholder="ext"
+                            value={videoExt}
+                            onChange={(e) => setVideoExt(e.target.value)}
 						/>
 					</div>
 
 					<button
 						className=" bg-neutral-900 text-sm px-2 py-1 rounded-md"
-						onClick={() => {
-							// window.location.href = "/process";
-						}}
+						onClick={onFinalizeVideo}
 					>
 						Finalize Video
 					</button>
@@ -86,10 +137,13 @@ export default function Home() {
 					assetUrl={assetUrl}
 					setAssetUrl={setAssetUrl}
 					setVideoLoaded={setVideoLoaded}
+                    setVideoPath={setVideoPath}
 				/>
 
 				<RangeSlider
 					videoRef={videoRef}
+                    startPercentage={startPercentage}
+                    endPercentage={endPercentage}
 					setStartPercentage={setStartPercentage}
 					setEndPercentage={setEndPercentage}
 					videoLoaded={videoLoaded}

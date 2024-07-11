@@ -12,12 +12,14 @@ export default function VideoPlayer({
 	assetUrl,
 	setAssetUrl,
 	setVideoLoaded,
+    setVideoPath
 }: {
 	onPlayPauseClick: () => void;
 	videoRef: RefObject<HTMLVideoElement>;
 	assetUrl: string;
 	setAssetUrl: (url: string) => void;
 	setVideoLoaded: (loaded: boolean) => void;
+    setVideoPath: (path: string) => void;
 }) {
 	const [fileHovering, setFileHovering] = useState(false);
 
@@ -25,6 +27,7 @@ export default function VideoPlayer({
 		const assetUrl = convertFileSrc(filePath);
 
 		setAssetUrl(assetUrl);
+        setVideoPath(filePath);
 		setVideoLoaded(true);
 	}
 
