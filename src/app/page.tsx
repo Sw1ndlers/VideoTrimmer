@@ -7,7 +7,7 @@ import Header from "@/components/Header";
 import RangeSlider from "@/components/RangeSlider";
 import VideoPlayer from "@/components/VideoPlayer";
 import VideoControls from "@/components/VideoControls";
-import { invoke } from '@tauri-apps/api/tauri'
+import { invoke } from "@tauri-apps/api/tauri";
 
 export default function Home() {
 	const [assetUrl, setAssetUrl] = useState("");
@@ -18,9 +18,9 @@ export default function Home() {
 	const [videoPlaying, setVideoPlaying] = useState(false);
 	const [videoCurrentTime, setVideoCurrentTime] = useState(0);
 
-    const [videoPath, setVideoPath] = useState<string | null>(null);
-    const [videoName, setVideoName] = useState<string>("");
-    const [videoExt, setVideoExt] = useState<string>("");
+	const [videoPath, setVideoPath] = useState<string | null>(null);
+	const [videoName, setVideoName] = useState<string>("");
+	const [videoExt, setVideoExt] = useState<string>("");
 
 	const videoRef = useRef<HTMLVideoElement>(null);
 	let updateInterval: any = null;
@@ -43,50 +43,53 @@ export default function Home() {
 		}
 	}
 
-    function splitVideoPath(fullPath: string) {
-        const fullVideoName = fullPath.split("\\");
-        const extensionSplit = fullPath.split(".");
+	function splitVideoPath(fullPath: string) {
+		const fullVideoName = fullPath.split("\\");
+		const extensionSplit = fullPath.split(".");
 
-        const videoExt = extensionSplit[extensionSplit.length - 1];
-        const videoName = fullVideoName[fullVideoName.length - 1].split("." + videoExt)[0];
+		const videoExt = extensionSplit[extensionSplit.length - 1];
+		const videoName = fullVideoName[fullVideoName.length - 1].split(
+			"." + videoExt,
+		)[0];
 
-        return {
-            videoName,
-            videoExt
-        }
-    }
+		return {
+			videoName,
+			videoExt,
+		};
+	}
 
-    function createNewVideoPath(fullPath: string) {
-        const videoFolder = fullPath.split("\\").slice(0, -1).join("\\");
-        const newVideoPath = `${videoFolder}\\${videoName}.${videoExt}`;
+	function createNewVideoPath(fullPath: string) {
+		const videoFolder = fullPath.split("\\").slice(0, -1).join("\\");
+		const newVideoPath = `${videoFolder}\\${videoName}.${videoExt}`;
 
-        return newVideoPath;
-    }
+		return newVideoPath;
+	}
 
-    async function onFinalizeVideo() {
-        if (!videoPath || !videoRef.current) return;
+	async function onFinalizeVideo() {
+		if (!videoPath || !videoRef.current) return;
 
-        const newVideoPath = createNewVideoPath(videoPath);
-        const videoLength = videoRef.current.duration;
+		const newVideoPath = createNewVideoPath(videoPath);
+		const videoLength = videoRef.current.duration;
 
-        const result = invoke("process_video", {
-            inputPath: videoPath,
-            outputPath: newVideoPath,
-            startTime: Math.max(startPercentage * videoLength, 0),
-            endTime: Math.min(endPercentage * videoLength, videoLength)
-        })
+		const result = invoke("process_video", {
+			inputPath: videoPath,
+			outputPath: newVideoPath,
+			startTime: Math.max(startPercentage * videoLength, 0),
+			endTime: Math.min(endPercentage * videoLength, videoLength),
+		});
 
-        console.log(result);
-    }
+		result
+			.then((message) => console.log(message))
+			.catch((error) => console.error(error));
+	}
 
-
-    useEffect(() => {
-        if (videoPath) {
-            const { videoName, videoExt } = splitVideoPath(videoPath);
-            setVideoName(videoName);
-            setVideoExt(videoExt);
-        }
-    }, [videoPath]);
+	useEffect(() => {
+		if (videoPath) {
+			const { videoName, videoExt } = splitVideoPath(videoPath);
+			setVideoName(videoName);
+			setVideoExt(videoExt);
+		}
+	}, [videoPath]);
 
 	useEffect(() => {
 		if (!videoRef.current) return;
@@ -103,23 +106,21 @@ export default function Home() {
 
 	return (
 		<div className=" bg-neutral-950 h-screen w-full flex flex-col">
-
 			<div className="w-full h-full p-2 flex flex-col gap-1">
 				<div className="flex flex-row h-10 -mt-1 items-center justify-between px-1">
 					<div className=" flex gap-2">
 						<input
 							className="bg-neutral-900 text-sm p-1 rounded-md focus:shadow-lg border border-transparent focus:border focus:border-neutral-300/50"
 							placeholder="Title"
-                            value={videoName}
-                            onChange={(e) => setVideoName(e.target.value)}
-                            
+							value={videoName}
+							onChange={(e) => setVideoName(e.target.value)}
 						/>
 						<p className=" translate-y-1 text-xl">.</p>
 						<input
 							className="bg-neutral-900 text-sm p-1 rounded-md focus:shadow-lg border border-transparent focus:border focus:border-neutral-300/50 w-12"
 							placeholder="ext"
-                            value={videoExt}
-                            onChange={(e) => setVideoExt(e.target.value)}
+							value={videoExt}
+							onChange={(e) => setVideoExt(e.target.value)}
 						/>
 					</div>
 
@@ -137,13 +138,13 @@ export default function Home() {
 					assetUrl={assetUrl}
 					setAssetUrl={setAssetUrl}
 					setVideoLoaded={setVideoLoaded}
-                    setVideoPath={setVideoPath}
+					setVideoPath={setVideoPath}
 				/>
 
 				<RangeSlider
 					videoRef={videoRef}
-                    startPercentage={startPercentage}
-                    endPercentage={endPercentage}
+					startPercentage={startPercentage}
+					endPercentage={endPercentage}
 					setStartPercentage={setStartPercentage}
 					setEndPercentage={setEndPercentage}
 					videoLoaded={videoLoaded}

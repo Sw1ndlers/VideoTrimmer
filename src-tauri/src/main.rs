@@ -2,7 +2,9 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::{
-    fs::{self, rename}, path::{Path, PathBuf}, process::Command
+    fs::{self, rename},
+    path::{Path, PathBuf},
+    process::Command,
 };
 
 use tauri::{Manager, WindowEvent};
@@ -30,7 +32,7 @@ fn seconds_to_timestamp(seconds: f32) -> String {
     format!("{:02}:{:02}:{:.4}", hours, minutes, seconds)
 }
 
-// 0 Idea if this is even needed
+// No idea if this is even needed
 #[tauri::command]
 fn extend_scope(handle: tauri::AppHandle, path: PathBuf) {
     let asset_scope = handle.asset_protocol_scope();
@@ -41,7 +43,12 @@ fn extend_scope(handle: tauri::AppHandle, path: PathBuf) {
 }
 
 #[tauri::command]
-fn process_video(mut input_path: PathBuf, output_path: PathBuf, start_time: f32, end_time: f32) {
+fn process_video(
+    mut input_path: PathBuf,
+    output_path: PathBuf,
+    start_time: f32,
+    end_time: f32,
+) -> Result<(), String> {
     println!(
         "
     Processing video:
@@ -62,7 +69,8 @@ fn process_video(mut input_path: PathBuf, output_path: PathBuf, start_time: f32,
     // if input_path = output_path, rename input_path to input_path-old
     if input_path == output_path {
         let temp_path = append_to_file_name(&input_path, "temp");
-        fs::copy(&input_path, &temp_path).expect("Failed to copy input file");
+        fs::copy(&input_path, &temp_path)
+            .map_err(|err| format!("Failed to copy input file to temporary file: {}", err))?;
 
         input_path = temp_path;
         using_temp = true;
@@ -70,8 +78,6 @@ fn process_video(mut input_path: PathBuf, output_path: PathBuf, start_time: f32,
 
     let mut output = Command::new("ffmpeg")
         .arg("-hide_banner")
-        // .arg("-loglevel")
-        // .arg("warning")
         .arg("-i")
         .arg(&input_path)
         .arg("-ss")
@@ -82,17 +88,22 @@ fn process_video(mut input_path: PathBuf, output_path: PathBuf, start_time: f32,
         .arg("1")
         .arg(&output_path)
         .spawn()
-        .expect("Failed to start ffmpeg");
+        .map_err(|err| {
+            format!(
+                "Failed to spawn ffmpeg process: {}. Make sure ffmpeg is installed and in your PATH.",
+                err
+            )
+        })?;
 
     // wait for the process to finish
-    output.wait().expect("Failed to wait for ffmpeg");
+    output.wait().unwrap();
 
     if using_temp {
         trash::delete(&original_input_path).unwrap();
         rename(&input_path, &original_input_path).unwrap();
     }
 
-    // trash::delete(&input_path).expect("Failed to delete input file");
+    Ok(())
 }
 
 fn main() {
