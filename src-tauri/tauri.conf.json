@@ -1,105 +1,71 @@
 {
-    "$schema": "../node_modules/@tauri-apps/cli/schema.json",
-    "build": {
-        "beforeBuildCommand": "pnpm run build",
-        "beforeDevCommand": "pnpm run dev",
-        "devPath": "http://localhost:3000",
-        "distDir": "../out"
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "build": {
+    "beforeBuildCommand": "pnpm run build",
+    "beforeDevCommand": "pnpm run dev",
+    "frontendDist": "../out",
+    "devUrl": "http://localhost:3000"
+  },
+  "bundle": {
+    "active": true,
+    "category": "DeveloperTool",
+    "copyright": "",
+    "targets": "all",
+    "externalBin": [],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
     },
-    "package": {
-        "productName": "Clip Trimmer",
-        "version": "1.0.0"
+    "longDescription": "",
+    "macOS": {
+      "entitlements": null,
+      "exceptionDomain": "",
+      "frameworks": [],
+      "providerShortName": null,
+      "signingIdentity": null
     },
-    "tauri": {
-        "allowlist": {
-            "all": false,
-            "fs": {
-                "all": false,
-                "copyFile": false,
-                "createDir": false,
-                "exists": false,
-                "readDir": false,
-                "readFile": true,
-                "removeDir": false,
-                "removeFile": false,
-                "renameFile": false,
-                "scope": [""],
-                "writeFile": true
-            },
-            "dialog": {
-                "all": false,
-                "ask": false,
-                "confirm": false,
-                "message": false,
-                "open": true,
-                "save": false
-            },
-            "protocol": {
-                "all": false,
-                "asset": true,
-                "assetScope": [""]
-            },
-            "window": {
-                "all": false,
-                "close": true,
-                "hide": true,
-                "show": true,
-                "maximize": true,
-                "minimize": true,
-                "unmaximize": true,
-                "unminimize": true,
-                "startDragging": true
-            }
-        },
-        "bundle": {
-            "active": true,
-            "category": "DeveloperTool",
-            "copyright": "",
-            "deb": {
-                "depends": []
-            },
-            "externalBin": [],
-            "icon": [
-                "icons/32x32.png",
-                "icons/128x128.png",
-                "icons/128x128@2x.png",
-                "icons/icon.icns",
-                "icons/icon.ico"
-            ],
-            "identifier": "com.sw1ndler.trimmer",
-            "longDescription": "",
-            "macOS": {
-                "entitlements": null,
-                "exceptionDomain": "",
-                "frameworks": [],
-                "providerShortName": null,
-                "signingIdentity": null
-            },
-            "resources": [],
-            "shortDescription": "",
-            "targets": "all",
-            "windows": {
-                "certificateThumbprint": null,
-                "digestAlgorithm": "sha256",
-                "timestampUrl": ""
-            }
-        },
-        "security": {
-            "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost; media-src 'self' asset: https://asset.localhost"
-        },
-        "updater": {
-            "active": false
-        },
-        "windows": [
-            {
-                "fullscreen": false,
-                "height": 600,
-                "resizable": true,
-                "title": "Clip Trimmer",
-                "width": 800,
-                "decorations": false,
-                "transparent": true
-            }
-        ]
+    "resources": [],
+    "shortDescription": "",
+    "linux": {
+      "deb": {
+        "depends": []
+      }
     }
+  },
+  "productName": "Clip Trimmer",
+  "mainBinaryName": "Clip Trimmer",
+  "version": "1.0.0",
+  "identifier": "com.sw1ndler.trimmer",
+  "plugins": {},
+  "app": {
+    "windows": [
+      {
+        "fullscreen": false,
+        "height": 600,
+        "resizable": true,
+        "title": "Clip Trimmer",
+        "width": 800,
+        "decorations": false,
+        "transparent": true,
+        "useHttpsScheme": true
+      }
+    ],
+    "security": {
+      "assetProtocol": {
+        "scope": [
+          ""
+        ],
+        "enable": true
+      },
+      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost; media-src 'self' asset: https://asset.localhost; connect-src ipc: http://ipc.localhost"
+    }
+  }
 }

@@ -2,12 +2,12 @@
 
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useRef, useState } from "react";
-import { convertFileSrc } from "@tauri-apps/api/tauri";
+import { convertFileSrc } from "@tauri-apps/api/core";
 import Header from "@/components/Header";
 import RangeSlider from "@/components/RangeSlider";
 import VideoPlayer from "@/components/VideoPlayer";
 import VideoControls from "@/components/VideoControls";
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/core";
 
 export default function Home() {
 	const [assetUrl, setAssetUrl] = useState("");

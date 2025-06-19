@@ -33,14 +33,14 @@ fn seconds_to_timestamp(seconds: f32) -> String {
 }
 
 // No idea if this is even needed
-#[tauri::command]
-fn extend_scope(handle: tauri::AppHandle, path: PathBuf) {
-    let asset_scope = handle.asset_protocol_scope();
-    let file_scope = handle.fs_scope();
+// #[tauri::command]
+// fn extend_scope(handle: tauri::AppHandle, path: PathBuf) {
+//     let asset_scope = handle.asset_protocol_scope();
+//     let file_scope = handle.fs_scope();
 
-    asset_scope.allow_file(&path).unwrap();
-    file_scope.allow_file(&path).unwrap();
-}
+//     asset_scope.allow_file(&path).unwrap();
+//     file_scope.allow_file(&path).unwrap();
+// }
 
 #[tauri::command]
 fn process_video(
@@ -108,20 +108,22 @@ fn process_video(
 
 fn main() {
     tauri::Builder::default()
-        .setup(|app| {
-            let Some(window) = app.get_window("main") else {
-                return Ok(());
-            };
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_dialog::init())
+        // .setup(|app| {
+        //     let Some(window) = app.get_window("main") else {
+        //         return Ok(());
+        //     };
 
-            set_shadow(&window, true).expect("Unsupported platform!");
+        //     set_shadow(&window, true).expect("Unsupported platform!");
 
-            window.on_window_event(|event| match event {
-                WindowEvent::Resized(..) => std::thread::sleep(std::time::Duration::from_millis(5)),
-                _ => {}
-            });
+        //     window.on_window_event(|event| match event {
+        //         WindowEvent::Resized(..) => std::thread::sleep(std::time::Duration::from_millis(5)),
+        //         _ => {}
+        //     });
 
-            Ok(())
-        })
+        //     Ok(())
+        // })
         .invoke_handler(tauri::generate_handler![process_video])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

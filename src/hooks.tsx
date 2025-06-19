@@ -1,20 +1,20 @@
 
-import { WebviewWindow } from "@tauri-apps/api/window";
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { useState, useEffect } from "react";
 
 
-export function useAppWindow() {
-    const [appWindow, setAppWindow] = useState<WebviewWindow>();
+// export function useAppWindow() {
+//     const [appWindow, setAppWindow] = useState<WebviewWindow>();
 
-    // Import appWindow and save it inside the state for later usage
-    async function setupAppWindow() {
-        const appWindow = (await import("@tauri-apps/api/window")).appWindow;
-        setAppWindow(appWindow);
-    }
+//     // Import appWindow and save it inside the state for later usage
+//     async function setupAppWindow() {
+//         const appWindow = (await import("@tauri-apps/api/window")).appWindow;
+//         setAppWindow(appWindow);
+//     }
 
-    useEffect(() => {
-        setupAppWindow();
-    }, []);
+//     useEffect(() => {
+//         setupAppWindow();
+//     }, []);
 
-    return appWindow;
-}
+//     return appWindow;
+// }

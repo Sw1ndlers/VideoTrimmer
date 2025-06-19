@@ -1,9 +1,9 @@
 "use client";
 
 import { listen } from "@tauri-apps/api/event";
-import { convertFileSrc } from "@tauri-apps/api/tauri";
+import { convertFileSrc } from "@tauri-apps/api/core";
 import { RefObject, useEffect, useState } from "react";
-import { open } from "@tauri-apps/api/dialog";
+import { open } from "@tauri-apps/plugin-dialog";
 import { videoExtensions } from "@/utils";
 
 export default function VideoPlayer({

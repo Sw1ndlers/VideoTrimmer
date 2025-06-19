@@ -1,15 +1,16 @@
 "use client";
 
-import { useAppWindow } from "@/hooks";
 import { clamp } from "@/utils";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useState, useRef, useEffect, RefObject } from "react";
 
 export type CurrentDragging = "Start" | "End" | "None";
 
 export default function RangeSlider({
-    videoRef,
-    startPercentage,
-    endPercentage,
+	videoRef,
+	startPercentage,
+	endPercentage,
 	setStartPercentage,
 	setEndPercentage,
 	videoLoaded,
@@ -17,9 +18,9 @@ export default function RangeSlider({
 	videoCurrentTime,
 	currentTime,
 }: {
-    videoRef: RefObject<HTMLVideoElement>;
-    startPercentage: number;
-    endPercentage: number;
+	videoRef: RefObject<HTMLVideoElement>;
+	startPercentage: number;
+	endPercentage: number;
 	setStartPercentage: (percentage: number) => void;
 	setEndPercentage: (percentage: number) => void;
 	videoLoaded: boolean;
@@ -36,7 +37,7 @@ export default function RangeSlider({
 	const endDotRef = useRef<HTMLDivElement>(null);
 
 	const [seekPreviewTime, setSeekPreviewTime] = useState<number | null>(null);
-    const appWindow = useAppWindow();
+	const appWindow = getCurrentWindow();
 
 	useEffect(() => {
 		if (currentDragging !== "None") return;
@@ -44,7 +45,7 @@ export default function RangeSlider({
 		setCurrentTimePreviewOffset((videoCurrentTime / videoDuration!) * 100);
 	}, [videoCurrentTime]);
 
-    function seekToPercentage(percentage: number) {
+	function seekToPercentage(percentage: number) {
 		if (!videoRef.current) return;
 
 		videoRef.current.currentTime = percentage * videoRef.current.duration;
@@ -80,25 +81,25 @@ export default function RangeSlider({
 		setCurrentDragging("None");
 	}
 
-    function setLeftDotPosition(percentage: number) {
-        let startDot = startDotRef.current!;
-        let container = containerRef.current!;
+	function setLeftDotPosition(percentage: number) {
+		let startDot = startDotRef.current!;
+		let container = containerRef.current!;
 
-        let containerRect = container.getBoundingClientRect();
+		let containerRect = container.getBoundingClientRect();
 
-        let offset = percentage * containerRect.width;
-        startDot.style.left = `${offset}px`;
-    }
+		let offset = percentage * containerRect.width;
+		startDot.style.left = `${offset}px`;
+	}
 
-    function setRightDotPosition(percentage: number) {
-        let endDot = endDotRef.current!;
-        let container = containerRef.current!;
+	function setRightDotPosition(percentage: number) {
+		let endDot = endDotRef.current!;
+		let container = containerRef.current!;
 
-        let containerRect = container.getBoundingClientRect();
+		let containerRect = container.getBoundingClientRect();
 
-        let offset = percentage * containerRect.width;
-        endDot.style.right = `${containerRect.width - offset}px`;
-    }
+		let offset = percentage * containerRect.width;
+		endDot.style.right = `${containerRect.width - offset}px`;
+	}
 
 	function onMouseMove(event: MouseEvent) {
 		if (currentDragging === "None") return;
@@ -138,26 +139,31 @@ export default function RangeSlider({
 			seekToPercentage(percentage);
 		}
 	}
-    
 
 	useEffect(() => {
-        if (!appWindow) return;
+		if (!appWindow) return;
 
-        let unlisten: () => void;
+		let unlisten = () => {}; // Default no-op to avoid calling undefined
 
-        (async () => {
-            unlisten = await appWindow.listen("tauri://resize", () => {
-                setLeftDotPosition(startPercentage)
-                setRightDotPosition(endPercentage)
-            })
-        })();
+		const setup = async () => {
+			try {
+				unlisten = await appWindow.listen("tauri://resize", () => {
+					setLeftDotPosition(startPercentage);
+					setRightDotPosition(endPercentage);
+				});
+			} catch (e) {
+				console.error("Failed to set up resize listener", e);
+			}
+		};
+
+		setup();
 
 		window.addEventListener("mouseup", onMouseUp);
 		window.addEventListener("mousemove", onMouseMove);
 
 		return () => {
-            unlisten()
-
+			unlisten(); 
+            
 			window.removeEventListener("mouseup", onMouseUp);
 			window.removeEventListener("mousemove", onMouseMove);
 		};
