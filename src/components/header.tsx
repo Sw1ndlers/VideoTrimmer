@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Maximize, MinusIcon, XIcon } from "lucide-react";
-import { getCurrentWebviewWindow, WebviewWindow } from "@tauri-apps/api/webviewWindow";
+import {
+	getCurrentWebviewWindow,
+	WebviewWindow,
+} from "@tauri-apps/api/webviewWindow";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 
 function TilebarButton({
 	icon,
@@ -24,17 +28,19 @@ function TilebarButton({
 }
 
 export default function Header() {
-	const appWindow = getCurrentWebviewWindow();
+	const appWindow = getCurrentWindow();
 
 	// These 3 functions will see the "appWindow" stored inside the state
 	function windowMinimize() {
-		appWindow?.minimize();
+		appWindow.minimize();
 	}
-	function windowToggleMaximize() {
-		appWindow?.toggleMaximize();
+
+	async function windowToggleMaximize() {
+		appWindow.toggleMaximize();
 	}
+
 	function windowClose() {
-		appWindow?.close();
+		appWindow.close();
 	}
 
 	return (
