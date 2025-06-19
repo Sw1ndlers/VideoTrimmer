@@ -5,6 +5,7 @@ import { convertFileSrc } from "@tauri-apps/api/core";
 import { RefObject, useEffect, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { videoExtensions } from "@/utils";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 
 export default function VideoPlayer({
 	onPlayPauseClick,
@@ -12,22 +13,23 @@ export default function VideoPlayer({
 	assetUrl,
 	setAssetUrl,
 	setVideoLoaded,
-    setVideoPath
+	setVideoPath,
 }: {
 	onPlayPauseClick: () => void;
 	videoRef: RefObject<HTMLVideoElement>;
 	assetUrl: string;
 	setAssetUrl: (url: string) => void;
 	setVideoLoaded: (loaded: boolean) => void;
-    setVideoPath: (path: string) => void;
+	setVideoPath: (path: string) => void;
 }) {
 	const [fileHovering, setFileHovering] = useState(false);
+	const appWindow = getCurrentWindow();
 
 	function setVideo(filePath: string) {
 		const assetUrl = convertFileSrc(filePath);
 
 		setAssetUrl(assetUrl);
-        setVideoPath(filePath);
+		setVideoPath(filePath);
 		setVideoLoaded(true);
 	}
 
@@ -37,26 +39,27 @@ export default function VideoPlayer({
 			filters: [{ name: "Videos", extensions: videoExtensions }],
 		});
 
-        if (!videoPath) return;
+		if (!videoPath) return;
 
-        setVideo(videoPath as string);
+		setVideo(videoPath as string);
 	}
 
 	useEffect(() => {
-		listen("tauri://file-drop-hover", (_event) => {
-			setFileHovering(true);
+		const unlisten = appWindow.onDragDropEvent((event) => {
+			if (event.payload.type === "over") {
+				setFileHovering(true);
+			} else if (event.payload.type === "drop") {
+				setFileHovering(false);
+				const filePath = event.payload.paths[0];
+				setVideo(filePath);
+			} else {
+				setFileHovering(false);
+			}
 		});
 
-		listen("tauri://file-drop-cancelled", (_event) => {
-			setFileHovering(false);
-		});
-
-		listen("tauri://file-drop", async (event: any) => {
-			setFileHovering(false);
-
-			let filePath = event.payload[0];
-			setVideo(filePath);
-		});
+		return () => {
+			unlisten.then((unlistenFn) => unlistenFn());
+		};
 	}, []);
 
 	return (
@@ -81,7 +84,7 @@ export default function VideoPlayer({
                             ${fileHovering ? "text-neutral-300" : "text-neutral-500"} 
                             flex justify-center items-center h-full w-full text-2xl hover:cursor-pointer
                         `}
-                        onClick={onClick}
+						onClick={onClick}
 					>
 						Click or Drag a Video
 					</p>
