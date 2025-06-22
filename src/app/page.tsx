@@ -8,6 +8,7 @@ import RangeSlider from "@/components/RangeSlider";
 import VideoPlayer from "@/components/VideoPlayer";
 import VideoControls from "@/components/VideoControls";
 import { invoke } from "@tauri-apps/api/core";
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 
 export default function Home() {
 	const [assetUrl, setAssetUrl] = useState("");
@@ -78,8 +79,12 @@ export default function Home() {
 			endTime: Math.min(endPercentage * videoLength, videoLength),
 		});
 
+        window.location.href = "/processing";
+
 		result
-			.then((message) => console.log(message))
+			.then((message) => {
+				console.log(message);
+			})
 			.catch((error) => console.error(error));
 	}
 
